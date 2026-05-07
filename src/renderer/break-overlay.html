@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Break Time</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #4FFFB0;
+      --accent2: #00D4FF;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(ellipse at 30% 40%, #0a1628 0%, #050810 60%, #010306 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-family: 'Syne', sans-serif;
+      color: white;
+      cursor: none;
+      user-select: none;
+    }
+
+    /* Animated background particles */
+    .particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(79,255,176,0.15), transparent 70%);
+      animation: float linear infinite;
+    }
+
+    @keyframes float {
+      0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 0.6; }
+      100% { transform: translateY(-20vh) scale(1); opacity: 0; }
+    }
+
+    /* Main content */
+    .overlay-content {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      animation: appear 0.8s ease forwards;
+    }
+
+    @keyframes appear {
+      from { opacity: 0; transform: scale(0.96); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .break-icon {
+      width: 80px;
+      height: 80px;
+      animation: breathe 4s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    .break-title {
+      font-size: 52px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+
+    .break-subtitle {
+      font-size: 20px;
+      font-weight: 400;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.5px;
+    }
+
+    /* 20-20-20 tip */
+    .break-tip {
+      background: rgba(79,255,176,0.06);
+      border: 1px solid rgba(79,255,176,0.15);
+      border-radius: 16px;
+      padding: 20px 36px;
+      max-width: 480px;
+    }
+
+    .tip-label {
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--accent);
+      margin-bottom: 10px;
+      opacity: 0.7;
+    }
+
+    .tip-text {
+      font-size: 16px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.7;
+      font-family: 'DM Mono', monospace;
+      font-weight: 300;
+    }
+
+    /* Countdown ring */
+    .countdown-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .countdown-ring {
+      width: 140px;
+      height: 140px;
+      transform: rotate(-90deg);
+    }
+
+    .countdown-bg {
+      fill: none;
+      stroke: rgba(255,255,255,0.06);
+      stroke-width: 6;
+    }
+
+    .countdown-fill {
+      fill: none;
+      stroke: url(#countdownGrad);
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke-dasharray: 345;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1s linear;
+    }
+
+    .countdown-text {
+      position: absolute;
+      font-family: 'DM Mono', monospace;
+      font-size: 28px;
+      font-weight: 400;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .countdown-unit {
+      position: absolute;
+      bottom: -20px;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: rgba(255,255,255,0.3);
+    }
+
+    /* Skip button (only in relaxed mode) */
+    .skip-btn {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 30px;
+      color: rgba(255,255,255,0.3);
+      font-size: 13px;
+      font-family: 'Syne', sans-serif;
+      padding: 8px 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: none;
+    }
+
+    .skip-btn:hover {
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.6);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    .skip-btn.visible { display: block; }
+
+    /* Progress bar at bottom */
+    .progress-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width 1s linear;
+      width: 100%;
+    }
+
+    /* Mode indicator */
+    .mode-indicator {
+      position: fixed;
+      top: 28px;
+      right: 28px;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: rgba(255,255,255,0.2);
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background particles -->
+  <div class="particles" id="particles"></div>
+
+  <!-- Mode indicator -->
+  <div class="mode-indicator" id="modeIndicator">SoundSafe</div>
+
+  <!-- Main content -->
+  <div class="overlay-content">
+    <svg class="break-icon" viewBox="0 0 80 80" fill="none">
+      <circle cx="40" cy="40" r="36" stroke="url(#eyeGrad)" stroke-width="2" fill="none" opacity="0.3"/>
+      <ellipse cx="40" cy="40" rx="24" ry="16" stroke="url(#eyeGrad)" stroke-width="2" fill="none"/>
+      <circle cx="40" cy="40" r="8" fill="url(#eyeGrad)" opacity="0.6"/>
+      <circle cx="37" cy="37" r="2.5" fill="white" opacity="0.9"/>
+      <defs>
+        <linearGradient id="eyeGrad" x1="0" y1="0" x2="80" y2="80">
+          <stop offset="0%" stop-color="#4FFFB0"/>
+          <stop offset="100%" stop-color="#00D4FF"/>
+        </linearGradient>
+      </defs>
+    </svg>
+
+    <div>
+      <div class="break-title">Eye Break</div>
+      <div class="break-subtitle">Rest your eyes · 20-20-20 rule</div>
+    </div>
+
+    <div class="break-tip">
+      <div class="tip-label">INSTRUCTIONS</div>
+      <div class="tip-text">
+        Look at something <strong style="color:rgba(255,255,255,0.8)">20 feet away</strong><br>
+        for the next <strong style="color:rgba(255,255,255,0.8)" id="durationDisplay">20 seconds</strong>
+      </div>
+    </div>
+
+    <!-- Countdown -->
+    <div class="countdown-container">
+      <svg class="countdown-ring" viewBox="0 0 120 120">
+        <circle class="countdown-bg" cx="60" cy="60" r="55"/>
+        <circle class="countdown-fill" cx="60" cy="60" r="55" id="countdownFill"/>
+        <defs>
+          <linearGradient id="countdownGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#4FFFB0"/>
+            <stop offset="100%" stop-color="#00D4FF"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="countdown-text" id="countdownText">--</div>
+    </div>
+
+    <button class="skip-btn" id="skipBtn" onclick="skipBreak()">Skip Break</button>
+  </div>
+
+  <!-- Bottom progress -->
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    const CIRC = 2 * Math.PI * 55; // ~345
+
+    let totalDuration = 20;
+    let remaining = 20;
+    let countdownInterval = null;
+    let mode = 'relaxed';
+
+    ipcRenderer.on('break-start', (_, data) => {
+      totalDuration = data.duration;
+      remaining = data.duration;
+      mode = data.mode;
+
+      document.getElementById('durationDisplay').textContent = `${totalDuration} seconds`;
+      document.getElementById('countdownFill').style.strokeDasharray = CIRC;
+      document.getElementById('countdownFill').style.strokeDashoffset = 0;
+      document.getElementById('progressFill').style.width = '100%';
+      document.getElementById('modeIndicator').textContent =
+        mode === 'strict' ? 'Strict Mode' : mode === 'focus' ? 'Focus Mode' : 'SoundSafe';
+
+      // Show skip button only in relaxed mode
+      if (mode !== 'strict' && mode !== 'focus') {
+        document.getElementById('skipBtn').classList.add('visible');
+      }
+
+      startCountdown();
+    });
+
+    function startCountdown() {
+      updateDisplay();
+      countdownInterval = setInterval(() => {
+        remaining--;
+        updateDisplay();
+        if (remaining <= 0) {
+          clearInterval(countdownInterval);
+          ipcRenderer.send('close-overlay');
+        }
+      }, 1000);
+    }
+
+    function updateDisplay() {
+      document.getElementById('countdownText').textContent = remaining;
+      const offset = CIRC * (remaining / totalDuration);
+      document.getElementById('countdownFill').style.strokeDashoffset = CIRC - offset;
+      const progressPct = (remaining / totalDuration) * 100;
+      document.getElementById('progressFill').style.width = `${progressPct}%`;
+    }
+
+    function skipBreak() {
+      if (countdownInterval) clearInterval(countdownInterval);
+      ipcRenderer.send('skip-break');
+    }
+
+    window.skipBreak = skipBreak;
+
+    // Generate particles
+    const particles = document.getElementById('particles');
+    for (let i = 0; i < 12; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = Math.random() * 200 + 80;
+      p.style.cssText = `
+        width: ${size}px;
+        height: ${size}px;
+        left: ${Math.random() * 100}%;
+        animation-duration: ${Math.random() * 20 + 15}s;
+        animation-delay: ${Math.random() * -20}s;
+        opacity: ${Math.random() * 0.5 + 0.1};
+      `;
+      particles.appendChild(p);
+    }
+  </script>
+</body>
+</html>

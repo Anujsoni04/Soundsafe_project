@@ -1,0 +1,31 @@
+{
+  "name": "soundsafe",
+  "version": "1.0.0",
+  "description": "Intelligent Audio & Screen Health Monitoring System for macOS",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --mac",
+    "dev": "electron . --dev"
+  },
+  "author": "SoundSafe",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^29.0.0",
+    "electron-builder": "^24.0.0"
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0"
+  },
+  "build": {
+    "appId": "com.soundsafe.app",
+    "productName": "SoundSafe",
+    "mac": {
+      "category": "public.app-category.healthcare-fitness",
+      "target": ["dmg", "zip"]
+    },
+    "directories": {
+      "output": "dist"
+    }
+  }
+}
