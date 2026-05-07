@@ -26,13 +26,14 @@ A smart desktop app that protects your hearing and eyes while you work.
 ### Setup
 
 ```bash
-# 1. Clone / unzip the project
-cd soundsafe
+# 1. download the src(source code) folder
+# 2. open the terminal and type this command
+cd ~/(your downloaded path) e.g this is mine "cd ~/Downloads/soundsafe"
 
-# 2. Install dependencies
+# 3. Install dependencies
 npm install
 
-# 3. Run in development
+# 4. Run in development
 npm start
 ```
 
