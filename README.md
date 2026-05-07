@@ -26,7 +26,7 @@ A smart desktop app that protects your hearing and eyes while you work.
 ### Setup
 
 ```bash
-# 1. download the src(source code) folder
+# 1. download the the project or zip folder
 # 2. open the terminal and type this command
 cd ~/(your downloaded path) e.g this is mine "cd ~/Downloads/soundsafe"
 
